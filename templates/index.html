@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>GlassGlow – Полировка стекол</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<div class="chat-container">
+    <h2>GlassGlow</h2>
+    <div id="chat-box"></div>
+
+    <!-- Кнопки действий -->
+    <div id="chat-buttons" class="chat-buttons">
+        <button onclick="sendMessage('расчет стоимости')">Расчёт</button>
+        <button onclick="sendMessage('галерея')">Галерея</button>
+        <button onclick="sendMessage('заявка')">Заявка</button>
+        <button onclick="sendMessage('контакты')">Контакты</button>
+    </div>
+
+    <div class="input-container">
+        <input id="user-input" placeholder="Напишите сообщение..." />
+        <button onclick="sendMessage()">Отправить</button>
+    </div>
+</div>
+
+<script>
+const input = document.getElementById('user-input');
+const chatBox = document.getElementById('chat-box');
+
+// Отправка сообщений по Enter
+input.addEventListener("keypress", function(e) {
+    if (e.key === "Enter") sendMessage();
+});
+
+// Функция отправки сообщений
+async function sendMessage(message = null) {
+    let userMessage = message || input.value.trim();
+    if (!userMessage) return;
+    if (!message) input.value = '';
+
+    // Сообщение пользователя
+    if (!message) chatBox.innerHTML += `<div class='user-msg'>${userMessage}</div>`;
+
+    // Отправка на сервер
+    let response = await fetch('/chat', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({message: userMessage})
+    });
+
+    let data = await response.json();
+    chatBox.innerHTML += `<div class='bot-msg'>${data.reply}</div>`;
+    chatBox.scrollTop = chatBox.scrollHeight;
+}
+
+// Автоприветствие при загрузке
+window.addEventListener('load', () => {
+    sendMessage('привет');
+});
+</script>
+</body>
+</html>
