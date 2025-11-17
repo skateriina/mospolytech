@@ -3,7 +3,7 @@ import pymysql
 import traceback
 
 app = Flask(__name__)
-app.secret_key = "supersecretkey123"  # замени на сложный ключ
+app.secret_key = "supersecretkey123" 
 
 def get_db_connection():
     return pymysql.connect(
@@ -16,20 +16,20 @@ def get_db_connection():
     )
 
 
-# ---- PUBLIC PAGES ----
+
 @app.route('/')
 def index():
     return render_template('index.html')
 
 
-# ---- CHAT ----
+
 @app.route('/chat', methods=['POST'])
 def chat():
     user_msg = request.json.get('message', '').strip().lower()
     reply = ""
 
     try:
-        # Приветствие
+
         if any(w in user_msg for w in ['привет', 'здрав', 'добрый', 'добрый день', 'добрыйвечер', 'hello']):
             reply = (
                 "Здравствуйте! Мы – <b>GlassGlow</b> 💎<br>"
@@ -37,14 +37,12 @@ def chat():
                 "Выберите действие 👇"
             )
 
-        # Расчёт стоимости (учтены варианты с ё/е)
         elif user_msg in ['расчет стоимости', 'расчёт стоимости', 'расчет', 'расчёт', 'расчитать', 'расчитать стоимость']:
             reply = (
                 "Введите параметры:<br>"
                 "<b>площадь=50 этаж=3 тип=энерго</b>"
             )
 
-        # Параметры расчёта
         elif any(w in user_msg for w in ['площадь', 'этаж', 'тип']):
             try:
                 params = {}
@@ -71,7 +69,7 @@ def chat():
             except:
                 reply = "Ошибка! Формат: площадь=50 этаж=3 тип=энерго"
 
-        # Галерея
+
         elif 'галере' in user_msg or 'фото' in user_msg or 'работ' in user_msg:
             imgs = [
                 "static/img/polirovka1.jpg",
@@ -80,7 +78,6 @@ def chat():
             ]
             reply = "".join([f'<img src="/{i}" width="200" style="margin:5px;">' for i in imgs])
 
-        # Заявка (форма)
         elif 'заявк' in user_msg or 'заказ' in user_msg or 'хочу' in user_msg and 'заяв' in user_msg:
             reply = '''
                 <b>Оставьте заявку:</b><br><br>
@@ -101,7 +98,6 @@ def chat():
                 "🌐 <a href='https://glassglow.ru' target='_blank'>glassglow.ru</a>"
             )
 
-        # FAQ / Вопрос-ответ (добавлен блок)
         elif any(word in user_msg for word in ['сколько', 'гарантия', 'результат', 'услуги', 'оплата', 'сколько времени', 'время']):
             faq = {
                 "сколько": "⏱ Полировка обычно занимает 2–3 часа в зависимости от площади и степени загрязнения.",
@@ -116,7 +112,7 @@ def chat():
                     reply = faq[key]
                     break
             if not reply:
-                # общий ответ для вопросов из FAQ-категории, если ключ точно не найден
+
                 reply = "Напишите, пожалуйста, конкретно: «сколько времени», «гарантия», «оплата» или «результат»."
 
         else:
@@ -129,7 +125,7 @@ def chat():
     return jsonify({"reply": reply})
 
 
-# ---- SAVE ORDER ----
+
 @app.route('/order', methods=['POST'])
 def order():
     try:
@@ -151,9 +147,9 @@ def order():
         return jsonify({"status": "error", "msg": "Ошибка записи"}), 500
 
 
-# ---- ADMIN AUTH ----
+
 ADMIN_USERNAME = "admin"
-ADMIN_PASSWORD = "1234"  # поменяй!
+ADMIN_PASSWORD = "1234" 
 
 
 @app.route('/admin', methods=["GET", "POST"])
