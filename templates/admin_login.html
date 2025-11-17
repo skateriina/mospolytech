@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>Админ — Вход</title>
+<style>
+    body { font-family: Arial; display:flex; justify-content:center; align-items:center; height:100vh; }
+    .box { border:1px solid #ccc; padding:20px; border-radius:10px; width:300px; }
+</style>
+</head>
+<body>
+<div class="box">
+    <h3>Вход администратора</h3>
+    {% if error %}<p style="color:red">{{ error }}</p>{% endif %}
+    <form method="POST">
+        <input name="username" placeholder="Логин" required><br><br>
+        <input name="password" type="password" placeholder="Пароль" required><br><br>
+        <button type="submit">Войти</button>
+    </form>
+</div>
+</body>
+</html>

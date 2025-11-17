@@ -6,12 +6,23 @@
     <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
-<div class="chat-container">
+
+<!-- Первый экран -->
+<div class="intro-screen" id="intro-screen">
+    <div class="intro-content">
+        <h1>GlassGlow</h1>
+        <p>Профессиональная полировка стекол в Москве</p>
+        <button class="start-btn" onclick="startChat()">Перейти в чат</button>
+    </div>
+</div>
+
+<!-- Чат -->
+<div class="chat-container" id="chat-container" style="display:none;">
     <h2>GlassGlow</h2>
+    
     <div id="chat-box"></div>
 
-    <!-- Кнопки действий -->
-    <div id="chat-buttons" class="chat-buttons">
+    <div class="chat-buttons">
         <button onclick="sendMessage('расчет стоимости')">Расчёт</button>
         <button onclick="sendMessage('галерея')">Галерея</button>
         <button onclick="sendMessage('заявка')">Заявка</button>
@@ -19,45 +30,51 @@
     </div>
 
     <div class="input-container">
-        <input id="user-input" placeholder="Напишите сообщение..." />
+        <input id="user-input" placeholder="Введите сообщение...">
         <button onclick="sendMessage()">Отправить</button>
     </div>
 </div>
 
 <script>
-const input = document.getElementById('user-input');
-const chatBox = document.getElementById('chat-box');
-
-// Отправка сообщений по Enter
-input.addEventListener("keypress", function(e) {
-    if (e.key === "Enter") sendMessage();
-});
-
-// Функция отправки сообщений
-async function sendMessage(message = null) {
-    let userMessage = message || input.value.trim();
-    if (!userMessage) return;
-    if (!message) input.value = '';
-
-    // Сообщение пользователя
-    if (!message) chatBox.innerHTML += `<div class='user-msg'>${userMessage}</div>`;
-
-    // Отправка на сервер
-    let response = await fetch('/chat', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({message: userMessage})
-    });
-
-    let data = await response.json();
-    chatBox.innerHTML += `<div class='bot-msg'>${data.reply}</div>`;
-    chatBox.scrollTop = chatBox.scrollHeight;
+function startChat(){
+    document.getElementById("intro-screen").style.display="none";
+    document.getElementById("chat-container").style.display="flex";
+    sendMessage("привет");
 }
 
-// Автоприветствие при загрузке
-window.addEventListener('load', () => {
-    sendMessage('привет');
+async function sendMessage(msg=null){
+    const input = document.getElementById("user-input");
+    const box = document.getElementById("chat-box");
+    let text = msg || input.value.trim();
+    if(!text) return;
+
+    if(!msg) input.value = "";
+    if(!msg) box.innerHTML += `<div class='user-msg'>${text}</div>`;
+
+    const res = await fetch("/chat", {
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({message:text})
+    });
+
+    const data = await res.json();
+    box.innerHTML += `<div class='bot-msg'>${data.reply}</div>`;
+    box.scrollTop = box.scrollHeight;
+}
+
+/* Обработка формы заявок */
+document.addEventListener("submit", async function(e){
+    if(e.target.id === "orderForm"){
+        e.preventDefault();
+
+        let form = new FormData(e.target);
+        let res = await fetch("/order", {method:"POST", body: form});
+        let json = await res.json();
+
+        e.target.outerHTML = `<b>${json.msg}</b>`;
+    }
 });
 </script>
+
 </body>
 </html>

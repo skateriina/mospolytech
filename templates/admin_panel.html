@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>Админ-панель</title>
+<style>
+    body { font-family: Arial, sans-serif; padding: 20px; }
+    table { border-collapse: collapse; width: 100%; margin-top: 15px; }
+    td, th { border: 1px solid #ccc; padding: 10px; text-align: center; }
+    select, button { padding: 5px; }
+    h2 { margin-bottom: 10px; }
+</style>
+</head>
+<body>
+
+<h2>Заявки</h2>
+
+<table>
+    <tr>
+        <th>ID</th>
+        <th>Имя</th>
+        <th>Телефон</th>
+        <th>Комментарий</th>
+        <th>Статус</th>
+        <th>Удалить</th>
+    </tr>
+
+    {% for row in orders %}
+    <tr id="row{{ row.id }}">
+        <td>{{ row.id }}</td>
+        <td>{{ row.name }}</td>
+        <td>{{ row.phone }}</td>
+        <td>{{ row.comment }}</td>
+        <td>
+            <select onchange="changeStatus({{ row.id }}, this.value)">
+                <option value="новая" {% if row.status == 'новая' %}selected{% endif %}>новая</option>
+                <option value="в работе" {% if row.status == 'в работе' %}selected{% endif %}>в работе</option>
+                <option value="готово" {% if row.status == 'готово' %}selected{% endif %}>готово</option>
+            </select>
+        </td>
+        <td>
+            <button onclick="deleteOrder({{ row.id }})">✖</button>
+        </td>
+    </tr>
+    {% endfor %}
+
+</table>
+
+<script>
+function changeStatus(id, status) {
+    fetch("/admin/status", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: `id=${id}&status=${status}`
+    });
+}
+
+function deleteOrder(id) {
+    if (!confirm("Удалить заявку?")) return;
+    fetch("/admin/delete", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: `id=${id}`
+    }).then(() => document.getElementById("row" + id).remove());
+}
+</script>
+
+</body>
+</html>
